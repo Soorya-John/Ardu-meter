@@ -1,0 +1,29 @@
+name: Compile firmware
+
+on:
+  push:
+    paths:
+      - "firmware/**"
+      - ".github/workflows/compile.yml"
+  pull_request:
+    paths:
+      - "firmware/**"
+      - ".github/workflows/compile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install board and libraries
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install arduino:avr
+          arduino-cli lib install "INA226@0.6.6" "Adafruit SSD1306"
+      - name: Compile for Arduino Uno
+        run: arduino-cli compile --fqbn arduino:avr:uno --warnings all firmware/ardu_meter
